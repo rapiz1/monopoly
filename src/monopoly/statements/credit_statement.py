@@ -3,7 +3,11 @@ import re
 
 from monopoly.constants import EntryType
 from monopoly.statements.debit_statement import DebitStatement
-from monopoly.statements.transaction import Transaction, TransactionGroupDict
+from monopoly.statements.transaction import (
+    Transaction,
+    TransactionDateEnum,
+    TransactionGroupDict,
+)
 
 from .base import BaseStatement, SafetyCheckError
 
@@ -20,12 +24,18 @@ class CreditStatement(BaseStatement):
     def post_process_transactions(self, transactions) -> list[Transaction]:
         previous_month_balances = self.get_prev_month_balances()
         if previous_month_balances:
-            first_transaction_date = next(iter(transactions)).date
             for prev_month_balance in previous_month_balances:
                 groupdict = TransactionGroupDict(**prev_month_balance.groupdict())
-                groupdict.transaction_date = first_transaction_date
+                groupdict.transaction_date = TransactionDateEnum.FirstTransactionDate
                 prev_month_transaction = Transaction(**groupdict)
                 transactions.insert(0, prev_month_transaction)
+        current_month_balances = self.get_current_month_balances()
+        if current_month_balances:
+            for curr_month_balance in current_month_balances:
+                groupdict = TransactionGroupDict(**curr_month_balance.groupdict())
+                groupdict.transaction_date = TransactionDateEnum.LastTransactionDate
+                curr_month_transaction = Transaction(**groupdict)
+                transactions.append(curr_month_transaction)
         return transactions
 
     def get_prev_month_balances(self) -> list[re.Match]:
@@ -44,6 +54,23 @@ class CreditStatement(BaseStatement):
                         prev_balances.append(match)
 
         return prev_balances
+
+    def get_current_month_balances(self) -> list[re.Match]:
+        """
+        Returns the current month's statement balance as a transaction,
+        if it exists in the statement.
+
+        The date is later replaced with a more accurate date by the statement handler.
+        """
+        curr_balances = []
+
+        if pattern := self.config.curr_balance_pattern:
+            for page in self.pages:
+                for line in page.lines:
+                    if match := pattern.search(line):
+                        curr_balances.append(match)
+
+        return curr_balances
 
     def perform_safety_check(self) -> bool:
         """Checks that the total sum of all transactions is present

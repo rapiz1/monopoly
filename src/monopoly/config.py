@@ -66,6 +66,7 @@ class StatementConfig:
     multiline_transactions_include_prev_margin: int = 3
     transaction_bound: Optional[int] = None
     prev_balance_pattern: Optional[Pattern[str] | RegexEnum] = None
+    curr_balance_pattern: Optional[Pattern[str] | RegexEnum] = None
     safety_check: bool = True
     transaction_auto_polarity: bool = True
 

@@ -2,6 +2,7 @@ import json
 import re
 from collections.abc import Mapping
 from typing import Any, Optional
+from enum import StrEnum
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 from pydantic.dataclasses import dataclass
@@ -71,6 +72,11 @@ class TransactionMatch:
 
     def span(self):
         return self.match.span()
+
+
+class TransactionDateEnum(StrEnum):
+    FirstTransactionDate = "FIRST TRANSACTION DATE"
+    LastTransactionDate = "LAST TRANSACTION DATE"
 
 
 @dataclass

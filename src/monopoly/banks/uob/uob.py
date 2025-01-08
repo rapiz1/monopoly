@@ -9,6 +9,7 @@ from monopoly.constants import (
     EntryType,
     StatementBalancePatterns,
 )
+from monopoly.constants.statement import StatementCurrentBalancePatterns
 from monopoly.identifiers import MetadataIdentifier, TextIdentifier
 
 from ..base import BankBase
@@ -24,6 +25,7 @@ class Uob(BankBase):
         statement_date_pattern=regex(rf"Statement Date.*{ISO8601.DD_MMM_YYYY}"),
         header_pattern=regex(r"(Description of Transaction.*Transaction Amount)"),
         prev_balance_pattern=StatementBalancePatterns.UOB,
+        curr_balance_pattern=StatementCurrentBalancePatterns.UOB,
         transaction_pattern=DebitTransactionPatterns.UOB,
         multiline_transactions=True,
     )

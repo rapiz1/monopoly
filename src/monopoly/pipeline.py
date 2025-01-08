@@ -1,4 +1,5 @@
 import csv
+import datetime
 import logging
 from pathlib import Path
 from typing import Optional, Type
@@ -12,6 +13,7 @@ from monopoly.generic import GenericBank, GenericStatementHandler
 from monopoly.handler import StatementHandler
 from monopoly.pdf import PdfPage, PdfParser
 from monopoly.statements import BaseStatement, Transaction
+from monopoly.statements.transaction import TransactionDateEnum
 from monopoly.write import generate_name
 
 logger = logging.getLogger(__name__)
@@ -63,6 +65,9 @@ class Pipeline:
         statement_date = statement.statement_date
         transaction_date_order = statement.config.transaction_date_order
 
+        def fmt_date(date: datetime.datetime):
+            return date.isoformat()[:10]
+
         def convert_date(transaction: Transaction, transaction_date_order: DateOrder):
             """
             Converts each date to a ISO 8601 (YYYY-MM-DD) format.
@@ -83,13 +88,41 @@ class Pipeline:
                 if statement_date.month in (1, 2) and parsed_date.month > 2:
                     parsed_date = parsed_date.replace(year=parsed_date.year - 1)
 
-                return parsed_date.isoformat()[:10]
-            raise RuntimeError("Could not convert date")
+                return parsed_date
+            raise RuntimeError("Could not convert date: " + transaction.date)
 
         logger.debug("Transforming dates to ISO 8601")
 
+        # first pass - parse all dates, find first and last transaction date
+        first_transaction_date = datetime.datetime.now()
+        last_transaction_date = datetime.datetime.fromtimestamp(0)
         for transaction in transactions:
-            transaction.date = convert_date(transaction, transaction_date_order)
+            if transaction.date in [
+                TransactionDateEnum.FirstTransactionDate,
+                TransactionDateEnum.LastTransactionDate,
+            ]:
+                pass
+            else:
+                transaction.date = convert_date(transaction, transaction_date_order)
+                first_transaction_date = min(
+                    first_transaction_date,
+                    transaction.date,
+                )
+                last_transaction_date = max(
+                    last_transaction_date,
+                    transaction.date,
+                )
+        # second pass - fill in the first and last transaction date
+        for transaction in transactions:
+            if not isinstance(transaction.date, str):
+                continue
+            if TransactionDateEnum.FirstTransactionDate in transaction.date:
+                transaction.date = first_transaction_date
+            elif TransactionDateEnum.LastTransactionDate in transaction.date:
+                transaction.date = last_transaction_date
+        # third pass - format all dates
+        for transaction in transactions:
+            transaction.date = fmt_date(transaction.date)
         return transactions
 
     @staticmethod
