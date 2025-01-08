@@ -30,12 +30,14 @@ class TransactionGroupDict(Mapping):
         amount: str,
         transaction_date: Optional[str] = None,
         suffix: Optional[str] = None,
+        sign: Optional[str] = None,
         **_,
     ):
         self.transaction_date = transaction_date
         self.amount = amount
         self.description = description
         self.suffix = suffix
+        self.sign = sign
 
     def __getitem__(self, x):
         return self.__dict__[x]
@@ -85,6 +87,7 @@ class Transaction:
     amount: float
     date: str = Field(alias="transaction_date")
     suffix: Optional[str] = None
+    sign: Optional[str] = None
     # avoid storing config logic, since the Transaction object is used to create
     # a single unique hash which should not change
     auto_polarity: bool = Field(default=True, init=True, repr=False)
@@ -144,7 +147,7 @@ class Transaction:
         if not self.auto_polarity:
             return self
 
-        if self.suffix in ("CR", "+"):
+        if self.suffix in ("CR", "+") or self.sign == "+":
             self.amount = abs(self.amount)
 
         else:

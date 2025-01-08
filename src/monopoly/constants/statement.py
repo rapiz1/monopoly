@@ -54,7 +54,7 @@ class SharedPatterns(StrEnum):
 
     COMMA_FORMAT = r"\d{1,3}(,\d{3})*\.\d*"
     ENCLOSED_COMMA_FORMAT = rf"\({COMMA_FORMAT}\s{{0,1}}\))"
-    OPTIONAL_NEGATIVE_SYMBOL = r"(?:-)?"
+    OPTIONAL_NEGATIVE_SYMBOL = r"(?P<sign>-|\+)?"
     DEBIT_CREDIT_SUFFIX = r"(?P<suffix>CR\b|DR\b|\+|\-)?\s*"
 
     AMOUNT = rf"(?P<amount>{OPTIONAL_NEGATIVE_SYMBOL}{COMMA_FORMAT}|{ENCLOSED_COMMA_FORMAT}\s*"
