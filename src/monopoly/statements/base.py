@@ -32,6 +32,7 @@ class BaseStatement(ABC):
         Columns.DATE,
         Columns.DESCRIPTION,
         Columns.AMOUNT,
+        Columns.BALANCE,
     ]
 
     def __init__(

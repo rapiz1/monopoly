@@ -39,6 +39,7 @@ class Columns(AutoEnum):
     DESCRIPTION = auto()
     SUFFIX = auto()
     TRANSACTION_DATE = auto()
+    BALANCE = auto()
 
 
 class SharedPatterns(StrEnum):
@@ -180,6 +181,7 @@ class DebitTransactionPatterns(RegexEnum):
         rf"(?P<transaction_date>{ISO8601.DD_MM_YYYY})\s+"
         + SharedPatterns.DESCRIPTION
         + SharedPatterns.AMOUNT_EXTENDED_WITHOUT_EOL
+        + rf"(?P<balance>{SharedPatterns.COMMA_FORMAT})"
     )
     MAYBANK = (
         rf"(?P<transaction_date>{ISO8601.DD_MM_YY})\s+"

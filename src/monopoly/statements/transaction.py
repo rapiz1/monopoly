@@ -32,6 +32,7 @@ class TransactionGroupDict(Mapping):
         transaction_date: Optional[str] = None,
         suffix: Optional[str] = None,
         sign: Optional[str] = None,
+        balance: Optional[str] = None,
         **_,
     ):
         self.transaction_date = transaction_date
@@ -39,6 +40,7 @@ class TransactionGroupDict(Mapping):
         self.description = description
         self.suffix = suffix
         self.sign = sign
+        self.balance = balance
 
     def __getitem__(self, x):
         return self.__dict__[x]
@@ -97,6 +99,7 @@ class Transaction:
     # avoid storing config logic, since the Transaction object is used to create
     # a single unique hash which should not change
     auto_polarity: bool = Field(default=True, init=True, repr=False)
+    balance: Optional[float] = None
 
     def as_raw_dict(self, show_suffix=False):
         """Returns stringified dictionary version of the transaction"""
@@ -115,6 +118,14 @@ class Transaction:
 
     @field_validator(Columns.AMOUNT, mode="before")
     def prepare_amount_for_float_coercion(cls, amount: str) -> str:
+        return cls.__prepare_amount_for_float_coercion(amount)
+
+    @field_validator(Columns.BALANCE, mode="before")
+    def prepare_balance_for_float_coercion(cls, amount: str) -> str:
+        return cls.__prepare_amount_for_float_coercion(amount)
+
+    @staticmethod
+    def __prepare_amount_for_float_coercion(amount: str) -> str:
         """
         Replaces commas, whitespaces, apostrophes and parentheses in string
         representation of floats

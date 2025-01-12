@@ -158,6 +158,7 @@ class Pipeline:
                             transaction.date,
                             transaction.description,
                             transaction.amount,
+                            transaction.balance,
                         ]
                     )
                 )
