@@ -26,6 +26,7 @@ class BankNames(AutoEnum):
     UOB = auto()
     ZKB = auto()
     TRUST = auto()
+    ICBC = auto()
 
 
 class InternalBankNames(AutoEnum):
@@ -210,4 +211,11 @@ class DebitTransactionPatterns(RegexEnum):
         + r"(?P<amount>\d{1,3}(\'\d{3})*(\.\d+)?)\s+"
         + rf"(?P<value_date>{ISO8601.DD_MM_YYYY})\s+"
         + r"(?P<balance>\d{1,3}(\'\d{3})*(\.\d+)?)$"
+    )
+    ICBC = (
+        rf"(?P<transaction_date>{ISO8601.YYYY_MM_DD})\s+"
+        + r"(?P<description>(?:(?!B\/F).)*?)"
+        + r"\s+SGD\s+"
+        + SharedPatterns.AMOUNT_EXTENDED_WITHOUT_EOL
+        + SharedPatterns.BALANCE
     )

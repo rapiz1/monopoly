@@ -45,3 +45,4 @@ class ISO8601(RegexEnum):
     MMM_DD_YYYY = (
         rf"\b({DateFormats.MMM}[-\s]{DateFormats.DD}[,\s]{{1,2}}{DateFormats.YYYY})"
     )
+    YYYY_MM_DD = rf"\b({DateFormats.YYYY}[-\s/]{DateFormats.MM}[-\s/]{DateFormats.DD})"

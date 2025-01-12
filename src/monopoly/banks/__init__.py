@@ -15,6 +15,7 @@ from .standard_chartered import StandardChartered
 from .trust import Trust
 from .uob import Uob
 from .zkb import ZurcherKantonalBank
+from .icbc import Icbc
 
 banks: list[Type["BankBase"]] = [
     BankOfAmerica,
@@ -29,6 +30,7 @@ banks: list[Type["BankBase"]] = [
     Uob,
     ZurcherKantonalBank,
     Trust,
+    Icbc,
 ]
 
 logger = logging.getLogger(__name__)
